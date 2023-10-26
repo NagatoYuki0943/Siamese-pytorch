@@ -1,7 +1,12 @@
+"""
+unet主干特征提取部分
+就是将vgg16的features部分按照maxp_pool分层
+将分层之前获取的特征作为提取的内容,一共提取5次,下面forward中就是
+"""
+
 import torch
 import torch.nn as nn
-from torchvision.models.utils import load_state_dict_from_url
-
+from torch.hub import load_state_dict_from_url
 
 class VGG(nn.Module):
     def __init__(self, features, num_classes=1000):
@@ -39,11 +44,12 @@ class VGG(nn.Module):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.constant_(m.bias, 0)
 
-# 105, 105, 3   -> 105, 105, 64 -> 52, 52, 64
-# 52, 52, 64    -> 52, 52, 128  -> 26, 26, 128
-# 26, 26, 128   -> 26, 26, 256  -> 13, 13, 256
-# 13, 13, 256   -> 13, 13, 512  -> 6, 6, 512
-# 6, 6, 512     -> 6, 6, 512    -> 3, 3, 512
+# 105, 105, 3 -> 105,105, 64 -> 105,105, 64 ->
+# 52, 52,  64 -> 52, 52,  64 -> 52, 52, 128 ->
+# 26, 26, 128 -> 26, 26, 128 -> 26, 26, 256 -> 26, 26, 256 ->
+# 13, 13, 256 -> 13, 13, 512 -> 13, 13, 512 -> 13, 13, 512 ->
+# 6,  6,  512 -> 6,  6,  512 -> 6,  6,  512 -> 6,  6,  512 ->
+# 3,  3,  512
 def make_layers(cfg, batch_norm=False, in_channels = 3):
     layers = []
     for v in cfg:
@@ -59,6 +65,7 @@ def make_layers(cfg, batch_norm=False, in_channels = 3):
     return nn.Sequential(*layers)
 
 cfgs = {
+    # 数字是out_channel
     'D': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M']
 }
 def VGG16(pretrained, in_channels, **kwargs):

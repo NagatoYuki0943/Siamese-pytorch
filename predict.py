@@ -5,7 +5,7 @@ from siamese import Siamese
 
 if __name__ == "__main__":
     model = Siamese()
-        
+
     while True:
         image_1 = input('Input image_1 filename:')
         try:

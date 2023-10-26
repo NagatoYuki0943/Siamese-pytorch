@@ -31,7 +31,7 @@ class Siamese(object):
         #   是否使用Cuda
         #   没有GPU可以设置成False
         #-------------------------------#
-        "cuda"              : True
+        "cuda"          : True
     }
 
     @classmethod
@@ -70,7 +70,7 @@ class Siamese(object):
             self.net = torch.nn.DataParallel(self.net)
             cudnn.benchmark = True
             self.net = self.net.cuda()
-    
+
     def letterbox_image(self, image, size):
         image   = image.convert("RGB")
         iw, ih  = image.size
@@ -85,7 +85,7 @@ class Siamese(object):
         if self.input_shape[-1]==1:
             new_image = new_image.convert("L")
         return new_image
-        
+
     #---------------------------------------------------#
     #   检测图片
     #---------------------------------------------------#
@@ -108,17 +108,17 @@ class Siamese(object):
         photo_1  = preprocess_input(np.array(image_1, np.float32))
         photo_2  = preprocess_input(np.array(image_2, np.float32))
 
-        with torch.no_grad():
+        with torch.inference_mode():
             #---------------------------------------------------#
             #   添加上batch维度，才可以放入网络中预测
             #---------------------------------------------------#
             photo_1 = torch.from_numpy(np.expand_dims(np.transpose(photo_1, (2, 0, 1)), 0)).type(torch.FloatTensor)
             photo_2 = torch.from_numpy(np.expand_dims(np.transpose(photo_2, (2, 0, 1)), 0)).type(torch.FloatTensor)
-            
+
             if self.cuda:
                 photo_1 = photo_1.cuda()
                 photo_2 = photo_2.cuda()
-                
+
             #---------------------------------------------------#
             #   获得预测结果，output输出为概率
             #---------------------------------------------------#

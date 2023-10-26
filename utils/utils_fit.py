@@ -13,7 +13,7 @@ def fit_one_epoch(model_train, model, loss, loss_history, optimizer, epoch, epoc
 
     val_loss            = 0
     val_total_accuracy  = 0
-    
+
     if local_rank == 0:
         print('Start Train')
         pbar = tqdm(total=epoch_step,desc=f'Epoch {epoch + 1}/{Epoch}',postfix=dict,mininterval=0.3)
@@ -22,7 +22,7 @@ def fit_one_epoch(model_train, model, loss, loss_history, optimizer, epoch, epoc
         if iteration >= epoch_step:
             break
         images, targets = batch[0], batch[1]
-        with torch.no_grad():
+        with torch.inference_mode():
             if cuda:
                 images  = images.cuda(local_rank)
                 targets = targets.cuda(local_rank)
@@ -49,7 +49,7 @@ def fit_one_epoch(model_train, model, loss, loss_history, optimizer, epoch, epoc
             scaler.step(optimizer)
             scaler.update()
 
-        with torch.no_grad():
+        with torch.inference_mode():
             equal       = torch.eq(torch.round(nn.Sigmoid()(outputs)), targets)
             accuracy    = torch.mean(equal.float())
 
@@ -72,7 +72,7 @@ def fit_one_epoch(model_train, model, loss, loss_history, optimizer, epoch, epoc
             break
         
         images, targets = batch[0], batch[1]
-        with torch.no_grad():
+        with torch.inference_mode():
             if cuda:
                 images  = images.cuda(local_rank)
                 targets = targets.cuda(local_rank)
